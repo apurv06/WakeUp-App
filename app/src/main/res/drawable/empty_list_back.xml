@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <item android:maxLevel="0" android:drawable="@color/ListBack" />
+    <item android:maxLevel="1" android:top="240dp" android:gravity="center_horizontal" android:drawable="@drawable/empty_box"   android:height="140dp" android:width="140dp"/>
+</layer-list>

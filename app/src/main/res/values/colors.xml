@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#191919</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#751975</color>
+    <color name="ListBack">#8C8C8C</color>
+    <color name="ItemBack">#808080</color>
+</resources>
