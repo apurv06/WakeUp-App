@@ -1,5 +1,6 @@
 package com.example.apurv.todo;
 
+import android.Manifest;
 import android.app.AlarmManager;
 
 import android.app.PendingIntent;
@@ -8,12 +9,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -72,6 +76,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText dateEditText;
     EditText timeEditText;
 
+    @Override
+    protected void onStart() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+        } else {
+
+        }
+        super.onStart();
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+    String[] permissions,
+    int[] grantResults) {
+    if (requestCode == 1) {
+    if(grantResults.length == 1
+    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+    } else {
+        finish();
+    }
+    }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         tv = findViewById(R.id.toolbar);
 
-        tv.setTitle("ToDo LIST");
+        tv.setTitle("WakeMeUp");
         tv.setTitleTextColor(getResources().getColor(R.color.ListBack));
 
         button.setOnClickListener(this);
@@ -200,19 +226,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         AlertDialog.Builder builder;
-
-
         builder = new AlertDialog.Builder(this);
-
         dialogView = getLayoutInflater().inflate(R.layout.add_layout, null);
         Title = dialogView.findViewById(R.id.expenseTitleEditText);
         et2 = dialogView.findViewById(R.id.description);
         dateEditText = dialogView.findViewById(R.id.addExpense_DateEditText);
         timeEditText = dialogView.findViewById(R.id.addExpense_TimeEditText);
-
         builder.setView(dialogView);
-
-
         dateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -341,19 +361,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        manager.cancel(pendingIntent);
    }
    public void setAlarm(long ReqCode,Long time,String title,String description,String repeat) {
-       AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-       Toast.makeText(MainActivity.this, "Alarm Set", Toast.LENGTH_SHORT).show();
-       Intent myIntent = new Intent(MainActivity.this, AlarmReceiver.class);
+       Intent myIntent = new Intent(MainActivity.this, MyService.class);
        myIntent.putExtra("title", title);
        myIntent.putExtra("description", description);
-       PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, (int) ReqCode, myIntent, 0);
-       if (repeat.contentEquals("true")) {
-           manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, time,86400000, pendingIntent);
-       } else {
-           manager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+       myIntent.putExtra("time",time);
+       myIntent.putExtra("code",ReqCode);
+       myIntent.putExtra("repeat",repeat);
 
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+           startForegroundService(myIntent);
        }
+       else
+       {
+           startService(myIntent);
+       }
+
+
    }
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
